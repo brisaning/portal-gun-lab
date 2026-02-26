@@ -8,7 +8,9 @@ import {
 } from '@dnd-kit/core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
+import { NotificationToast } from '../components/NotificationToast'
 import { getCharacters, moveCharacter } from '../services/characterService'
+import { getRandomInsult } from '../services/insultService'
 import type { Character } from '../types/character'
 
 const DROPPABLE_PREFIX = 'dim-'
@@ -76,9 +78,21 @@ export function useDimensions() {
         setCharacters((prev) =>
           prev.map((c) => (c.id === updated.id ? updated : c))
         )
-        toast.success(
-          `${updated.name} movido a ${targetDimension}`
-        )
+        toast.success(`${updated.name} movido a ${targetDimension}`)
+        getRandomInsult()
+          .then(({ insult }) => {
+            toast.custom(
+              (t) => (
+                <NotificationToast
+                  message={insult}
+                  visible={t.visible}
+                  toastId={t.id}
+                />
+              ),
+              { duration: 5000 }
+            )
+          })
+          .catch(() => {})
       } catch (e) {
         // Error ya mostrado por el handler global de API
       }
