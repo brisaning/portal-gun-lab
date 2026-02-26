@@ -2,12 +2,18 @@
 Portal Gun Character Lab - FastAPI Backend
 Temática psicodélica con verdes neón.
 """
+import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import close_mongo_connection, connect_to_mongo, ensure_indexes
+from app.database import (
+    close_mongo_connection,
+    connect_to_mongo,
+    ensure_indexes,
+    get_characters_collection,
+)
 from app.routes import characters as characters_routes
 from app.routes import rick_routes
 
@@ -52,3 +58,13 @@ def root():
 @app.get("/health")
 def health():
     return {"status": "healthy"}
+
+
+@app.delete("/api/test/clear-db")
+async def clear_test_db():
+    """Solo disponible cuando MONGO_DB_NAME=portal_gun_lab_test (para tests)."""
+    if os.getenv("MONGO_DB_NAME") != "portal_gun_lab_test":
+        raise HTTPException(status_code=404, detail="Not found")
+    coll = get_characters_collection()
+    result = await coll.delete_many({})
+    return {"deleted": result.deleted_count}
