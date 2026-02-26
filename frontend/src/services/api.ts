@@ -1,7 +1,12 @@
 import axios, { type AxiosError } from 'axios'
 
+const apiBaseURL =
+  typeof import.meta.env.VITE_API_URL === 'string' && import.meta.env.VITE_API_URL.trim() !== ''
+    ? import.meta.env.VITE_API_URL.trim().replace(/\/$/, '')
+    : 'http://localhost:8000/api'
+
 export const api = axios.create({
-  baseURL: '/api',
+  baseURL: apiBaseURL,
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 })
