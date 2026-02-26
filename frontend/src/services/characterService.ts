@@ -9,6 +9,7 @@ export interface CharacterCreatePayload {
   current_dimension: string
   image_url?: string | null
   captured_at?: string
+  stolen_by_rick_prime?: boolean
 }
 
 export interface CharacterUpdatePayload {

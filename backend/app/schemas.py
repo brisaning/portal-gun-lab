@@ -107,7 +107,7 @@ class CharacterBase(BaseModel):
 class CharacterCreate(CharacterBase):
     """Payload para crear un personaje."""
 
-    pass
+    stolen_by_rick_prime: bool = Field(default=False, description="Si se crea en la bóveda de Rick Prime")
 
 
 class CharacterUpdate(BaseModel):

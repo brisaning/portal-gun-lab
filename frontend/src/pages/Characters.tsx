@@ -1,12 +1,14 @@
 import { DndContext, DragOverlay, pointerWithin, type DragEndEvent } from '@dnd-kit/core'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { RICK_PRIME_DIMENSION } from '../constants/dimensions'
 import { CharacterCardOverlay } from '../components/CharacterCard'
+import { CreateCharacterModal } from '../components/CreateCharacterModal'
 import { DimensionColumn } from '../components/DimensionColumn'
 import { RickPrimeButton } from '../components/RickPrimeButton'
 import { useDimensions } from '../hooks/useDimensions'
 
 export function Characters() {
+  const [createModalOpen, setCreateModalOpen] = useState(false)
   const {
     characters,
     dimensions,
@@ -20,6 +22,7 @@ export function Characters() {
     handleDragOver,
     handleDragEnd,
     handleRickPrimeSteal,
+    loadCharacters,
   } = useDimensions()
 
   const handleDragEndRef = useRef(handleDragEnd)
@@ -57,12 +60,30 @@ export function Characters() {
 
   return (
     <div className="py-8">
-      <h1 className="font-display text-2xl font-bold text-neon-bright text-glow">
-        Dimensiones
-      </h1>
-      <p className="mt-2 font-sans text-neon/80">
-        Arrastra personajes entre columnas para cambiar de dimensión.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-neon-bright text-glow">
+            Dimensiones
+          </h1>
+          <p className="mt-2 font-sans text-neon/80">
+            Arrastra personajes entre columnas para cambiar de dimensión.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setCreateModalOpen(true)}
+          title="Crear nuevo ser dimensional"
+          className="rounded-xl border-2 border-neon-bright bg-neon-bright/10 px-4 py-2 font-display text-sm font-bold text-neon-bright shadow-[0_0_15px_rgba(57,255,20,0.4)] transition hover:bg-neon-bright/20 hover:shadow-[0_0_20px_rgba(57,255,20,0.5)]"
+        >
+          🔬 Generar Personaje
+        </button>
+      </div>
+
+      <CreateCharacterModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSuccess={loadCharacters}
+      />
 
       <DndContext
         sensors={sensors}
@@ -81,6 +102,15 @@ export function Characters() {
             />
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setCreateModalOpen(true)}
+          title="Crear nuevo ser dimensional"
+          className="fixed bottom-8 left-8 z-50 rounded-full border-2 border-neon-bright/80 bg-dark-bg px-4 py-3 font-display text-sm font-bold text-neon-bright shadow-[0_0_15px_rgba(57,255,20,0.4)] transition hover:border-neon-lime hover:shadow-[0_0_20px_rgba(57,255,20,0.5)]"
+        >
+          + Crear Personaje
+        </button>
 
         <RickPrimeButton
           onStealSuccess={handleRickPrimeSteal}

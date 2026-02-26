@@ -17,7 +17,10 @@ from app.schemas import (
     CharacterUpdate,
     MoveCharacterRequest,
 )
-from app.services.rick_prime_service import DOC_TYPE_DIMENSIONAL_STONE, RICK_PRIME_DIMENSION
+from app.services.rick_prime_service import (
+    DOC_TYPE_DIMENSIONAL_STONE,
+    RICK_PRIME_DIMENSION,
+)
 from app.utils import doc_to_character_response
 
 logger = logging.getLogger(__name__)
@@ -75,6 +78,8 @@ async def create_character(body: CharacterCreate) -> CharacterResponse:
         coll = get_characters_collection()
         doc = body.model_dump()
         doc["type"] = "character"
+        if doc.get("current_dimension") == RICK_PRIME_DIMENSION:
+            doc["stolen_by_rick_prime"] = True
         insert_result = await coll.insert_one(doc)
         new_id = str(insert_result.inserted_id)
         doc["_id"] = insert_result.inserted_id
