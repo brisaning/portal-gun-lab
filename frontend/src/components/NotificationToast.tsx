@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 const TOAST_EXIT_MS = 350
@@ -9,7 +9,7 @@ interface NotificationToastProps {
   toastId: string
 }
 
-export function NotificationToast({
+function NotificationToastComponent({
   message,
   visible,
   toastId,
@@ -45,3 +45,5 @@ export function NotificationToast({
     </div>
   )
 }
+
+export const NotificationToast = memo(NotificationToastComponent)

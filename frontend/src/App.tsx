@@ -1,9 +1,13 @@
+import { lazy, Suspense } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { useApiHandlers } from './hooks/useApiLoading'
-import { Characters } from './pages/Characters'
-import { Home } from './pages/Home'
+
+const Home = lazy(() => import('./pages/Home').then((m) => ({ default: m.Home })))
+const Characters = lazy(() =>
+  import('./pages/Characters').then((m) => ({ default: m.Characters }))
+)
 
 function App() {
   const apiLoading = useApiHandlers({
@@ -12,12 +16,20 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="characters" element={<Characters />} />
-        </Route>
-      </Routes>
+      <Suspense
+        fallback={
+          <div className="flex min-h-[40vh] items-center justify-center">
+            <p className="font-display text-neon-bright">Cargando...</p>
+          </div>
+        }
+      >
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="characters" element={<Characters />} />
+          </Route>
+        </Routes>
+      </Suspense>
       {apiLoading && (
         <div
           className="fixed left-0 top-0 z-[100] h-1 w-full animate-pulse bg-neon-bright/80"

@@ -12,6 +12,7 @@ import { NotificationToast } from '../components/NotificationToast'
 import { getCharacters, moveCharacter } from '../services/characterService'
 import { getRandomInsult } from '../services/insultService'
 import type { Character, DimensionalStone } from '../types/character'
+import { useDebouncedCallback } from './useDebouncedCallback'
 
 const DROPPABLE_PREFIX = 'dim-'
 
@@ -77,11 +78,8 @@ export function useDimensions() {
     loadCharacters()
   }, [loadCharacters])
 
-  const moveCharacterToDimension = useCallback(
+  const performMove = useCallback(
     async (characterId: string, targetDimension: string) => {
-      const character = characters.find((c) => c.id === characterId)
-      if (!character) return
-      if (character.current_dimension === targetDimension) return
       try {
         const updated = await moveCharacter(characterId, targetDimension)
         setCharacters((prev) =>
@@ -102,11 +100,28 @@ export function useDimensions() {
             )
           })
           .catch(() => {})
-      } catch (e) {
+      } catch {
         // Error ya mostrado por el handler global de API
       }
     },
-    [characters]
+    []
+  )
+
+  const moveCharacterToDimensionDebounced = useDebouncedCallback(
+    (characterId: string, targetDimension: string) => {
+      performMove(characterId, targetDimension)
+    },
+    300
+  )
+
+  const moveCharacterToDimension = useCallback(
+    (characterId: string, targetDimension: string) => {
+      const character = characters.find((c) => c.id === characterId)
+      if (!character) return
+      if (character.current_dimension === targetDimension) return
+      moveCharacterToDimensionDebounced(characterId, targetDimension)
+    },
+    [characters, moveCharacterToDimensionDebounced]
   )
 
   const handleRickPrimeSteal = useCallback(

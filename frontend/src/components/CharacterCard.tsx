@@ -1,5 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { memo } from 'react'
+import { CachedCharacterImage } from './CachedCharacterImage'
 import type { Character } from '../types/character'
 
 interface CharacterCardProps {
@@ -7,7 +9,7 @@ interface CharacterCardProps {
   isDragging?: boolean
 }
 
-export function CharacterCard({ character, isDragging = false }: CharacterCardProps) {
+function CharacterCardComponent({ character, isDragging = false }: CharacterCardProps) {
   const {
     attributes,
     listeners,
@@ -51,20 +53,10 @@ export function CharacterCard({ character, isDragging = false }: CharacterCardPr
       )}
 
       <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-neon/30 bg-dark-deeper">
-        {character.image_url ? (
-          <img
-            src={character.image_url}
-            alt=""
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div
-            className="flex h-full w-full items-center justify-center text-xl font-bold text-neon/60"
-            aria-hidden
-          >
-            {character.name.slice(0, 1)}
-          </div>
-        )}
+        <CachedCharacterImage
+          src={character.image_url}
+          fallbackLetter={character.name.slice(0, 1)}
+        />
       </div>
 
       <div className="min-w-0 flex-1">
@@ -82,8 +74,10 @@ export function CharacterCard({ character, isDragging = false }: CharacterCardPr
   )
 }
 
+export const CharacterCard = memo(CharacterCardComponent)
+
 /** Versión para el overlay de arrastre (sin useSortable, solo visual) */
-export function CharacterCardOverlay({ character }: { character: Character }) {
+function CharacterCardOverlayComponent({ character }: { character: Character }) {
   const isOriginDimension = character.origin_dimension === character.current_dimension
 
   return (
@@ -97,17 +91,10 @@ export function CharacterCardOverlay({ character }: { character: Character }) {
         </div>
       )}
       <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-neon/30 bg-dark-deeper">
-        {character.image_url ? (
-          <img
-            src={character.image_url}
-            alt=""
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-xl font-bold text-neon/60">
-            {character.name.slice(0, 1)}
-          </div>
-        )}
+        <CachedCharacterImage
+          src={character.image_url}
+          fallbackLetter={character.name.slice(0, 1)}
+        />
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate font-display font-semibold text-neon-bright">
@@ -119,3 +106,5 @@ export function CharacterCardOverlay({ character }: { character: Character }) {
     </div>
   )
 }
+
+export const CharacterCardOverlay = memo(CharacterCardOverlayComponent)

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { NotificationToast } from './NotificationToast'
 import { stealCharacter } from '../services/rickPrimeService'
@@ -16,7 +16,7 @@ interface RickPrimeButtonProps {
   disabled?: boolean
 }
 
-export function RickPrimeButton({
+function RickPrimeButtonComponent({
   onStealSuccess,
   disabled = false,
 }: RickPrimeButtonProps) {
@@ -105,3 +105,5 @@ export function RickPrimeButton({
     </>
   )
 }
+
+export const RickPrimeButton = memo(RickPrimeButtonComponent)
