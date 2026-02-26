@@ -5,6 +5,7 @@ Temática psicodélica con verdes neón.
 import os
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,6 +17,26 @@ from app.database import (
 )
 from app.routes import characters as characters_routes
 from app.routes import rick_routes
+
+load_dotenv()
+
+
+def _get_cors_origins() -> list[str]:
+    """
+    Orígenes permitidos para CORS desde la variable CORS_ORIGINS.
+    - Si no está definida o está vacía: permite cualquier origen (["*"]).
+    - Si está definida: lista separada por comas, ej.:
+      CORS_ORIGINS=http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173
+    """
+    raw = os.getenv("CORS_ORIGINS", "").strip()
+    if not raw:
+        return ["*"]
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+
+def _cors_allow_credentials(origins: list[str]) -> bool:
+    """Con origen "*" no se pueden enviar credenciales (restricción del navegador)."""
+    return origins != ["*"]
 
 
 @asynccontextmanager
@@ -34,14 +55,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configuración de CORS para el frontend
+_cors_origins = _get_cors_origins()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",  # Vite dev server
-        "http://127.0.0.1:5173",
-    ],
-    allow_credentials=True,
+    allow_origins=_cors_origins,
+    allow_credentials=_cors_allow_credentials(_cors_origins),
     allow_methods=["*"],
     allow_headers=["*"],
 )
