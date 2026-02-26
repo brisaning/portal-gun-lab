@@ -7,6 +7,7 @@ import * as insultService from '../services/insultService'
 
 vi.mock('react-hot-toast', () => ({
   default: {
+    success: vi.fn(),
     error: vi.fn(),
     custom: vi.fn(),
   },
@@ -18,9 +19,17 @@ const mockCharacter = {
   status: 'alive',
   species: 'Human',
   origin_dimension: 'C-137',
-  current_dimension: 'C-137',
+  current_dimension: 'RICK_PRIME_DIMENSION',
   image_url: null,
   captured_at: '2024-01-01T00:00:00Z',
+  stolen_by_rick_prime: true,
+  original_dimension: 'C-137',
+}
+
+const mockStone = {
+  id: 'stone-1',
+  dimension: 'C-137',
+  previous_character_id: 'char-1',
 }
 
 describe('RickPrimeButton', () => {
@@ -40,8 +49,11 @@ describe('RickPrimeButton', () => {
     expect(screen.getByRole('button')).toBeDisabled()
   })
 
-  it('llama a onStealSuccess con id y dimensión cuando el robo tiene éxito', async () => {
-    vi.spyOn(rickPrimeService, 'stealCharacter').mockResolvedValue(mockCharacter)
+  it('llama a onStealSuccess con character y stone cuando el robo tiene éxito', async () => {
+    vi.spyOn(rickPrimeService, 'stealCharacter').mockResolvedValue({
+      character: mockCharacter,
+      stone: mockStone,
+    })
     vi.spyOn(insultService, 'getRandomInsult').mockResolvedValue({ insult: 'Test insult' })
 
     const user = userEvent.setup()
@@ -49,13 +61,16 @@ describe('RickPrimeButton', () => {
     await user.click(screen.getByRole('button'))
 
     await vi.waitFor(() => {
-      expect(onStealSuccess).toHaveBeenCalledWith('char-1', 'C-137')
+      expect(onStealSuccess).toHaveBeenCalledWith(mockCharacter, mockStone)
     })
   })
 
   it('muestra animación durante el robo', async () => {
     vi.spyOn(rickPrimeService, 'stealCharacter').mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve(mockCharacter), 100))
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve({ character: mockCharacter, stone: mockStone }), 100)
+        )
     )
     vi.spyOn(insultService, 'getRandomInsult').mockResolvedValue({ insult: 'x' })
 
@@ -67,8 +82,8 @@ describe('RickPrimeButton', () => {
     expect(screen.getByText(/¡Robo dimensional!/)).toBeInTheDocument()
   })
 
-  it('no llama a onStealSuccess cuando stealCharacter devuelve null (404)', async () => {
-    vi.spyOn(rickPrimeService, 'stealCharacter').mockResolvedValue(null as never)
+  it('no llama a onStealSuccess cuando stealCharacter falla (404)', async () => {
+    vi.spyOn(rickPrimeService, 'stealCharacter').mockRejectedValue(new Error('404'))
 
     const user = userEvent.setup()
     render(<RickPrimeButton onStealSuccess={onStealSuccess} />)

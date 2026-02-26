@@ -6,8 +6,9 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { memo, useMemo, useRef } from 'react'
 import type { Character, DimensionalStone } from '../types/character'
+import { RICK_PRIME_DIMENSION } from '../constants/dimensions'
 import { getDroppableId } from '../hooks/useDimensions'
-import { CharacterCard } from './CharacterCard'
+import { CharacterCard, StaticCharacterCard } from './CharacterCard'
 import { DimensionalStoneCard } from './DimensionalStoneCard'
 
 const ROW_HEIGHT = 72
@@ -54,20 +55,30 @@ function DimensionColumnComponent({
   })
 
   const useVirtual = totalItems > VIRTUAL_THRESHOLD
+  const isPrimeColumn = dimension === RICK_PRIME_DIMENSION
 
-  return (
-    <div
-      ref={setNodeRef}
-      className={`
+  const columnTitle = isPrimeColumn ? "🔮 Trofeos de Rick Prime" : dimension
+  const columnClassName = isPrimeColumn
+    ? `prime-column dimension-column-portal flex min-h-[320px] w-72 flex-shrink-0 flex-col rounded-2xl border-2 p-4 backdrop-blur-sm
+       border-[#b300ff] bg-gradient-to-br from-[#1a0033] to-[#330033] shadow-[0_0_20px_rgba(179,0,255,0.5)]
+       hover:border-[#ff00ff] hover:shadow-[0_0_25px_rgba(255,0,255,0.5)]
+       ${active ? 'border-[#ff00ff] shadow-[0_0_25px_rgba(255,0,255,0.6)]' : ''}`
+    : `
         dimension-column-portal
         flex min-h-[320px] w-72 flex-shrink-0 flex-col rounded-2xl border-2
         bg-dark-bg/50 p-4 backdrop-blur-sm
         hover:border-neon-bright/60 hover:shadow-neon
         ${active ? 'border-neon-lime shadow-neon bg-dark-bg/70' : 'border-neon/30'}
-      `}
-    >
-      <h3 className="mb-3 font-display text-lg font-bold text-neon-bright text-glow">
-        {dimension}
+      `
+
+  return (
+    <div ref={setNodeRef} className={columnClassName}>
+      <h3
+        className={`mb-3 font-display text-lg font-bold text-glow ${
+          isPrimeColumn ? 'text-[#ff00ff] [text-shadow:0_0_10px_#ff00ff]' : 'text-neon-bright'
+        }`}
+      >
+        {columnTitle}
       </h3>
       <p className="mb-3 text-xs text-neon/70">
         {characters.length} personaje{characters.length !== 1 ? 's' : ''}
@@ -75,9 +86,21 @@ function DimensionColumnComponent({
       </p>
 
       {totalItems === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-neon/30 py-8 text-center text-sm text-neon/50">
-          Arrastra personajes aquí
+        <div
+          className={`flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed py-8 text-center text-sm ${
+            isPrimeColumn ? 'border-[#b300ff]/50 text-[#ff00ff]/70' : 'border-neon/30 text-neon/50'
+          }`}
+        >
+          {isPrimeColumn ? 'Los trofeos de Rick Prime aparecen aquí' : 'Arrastra personajes aquí'}
         </div>
+      ) : isPrimeColumn ? (
+        <ul className="flex flex-1 flex-col gap-2 overflow-y-auto">
+          {characters.map((char) => (
+            <li key={char.id}>
+              <StaticCharacterCard character={char} />
+            </li>
+          ))}
+        </ul>
       ) : (
         <SortableContext
           items={characters.map((c) => c.id)}

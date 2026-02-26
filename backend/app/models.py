@@ -74,6 +74,8 @@ class Character(BaseModel):
     current_dimension: str = Field(..., min_length=1, max_length=200)
     image_url: Optional[str] = Field(default=None, max_length=2000)
     captured_at: datetime = Field(default_factory=datetime.utcnow)
+    stolen_by_rick_prime: bool = Field(default=False)
+    original_dimension: Optional[str] = Field(default=None, max_length=200)
 
     def to_mongo(self) -> dict:
         """Convierte a diccionario para insertar/actualizar en MongoDB."""

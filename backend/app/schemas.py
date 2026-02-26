@@ -159,8 +159,18 @@ class CharacterResponse(CharacterBase):
     """Personaje en respuestas de la API."""
 
     id: str = Field(..., description="Identificador único (ObjectId como string)")
+    stolen_by_rick_prime: bool = Field(default=False)
+    original_dimension: Optional[str] = Field(default=None)
 
     model_config = {"from_attributes": True}
+
+
+class StoneResponse(BaseModel):
+    """Piedra dimensional en respuestas de la API."""
+
+    id: str = Field(..., description="Identificador único de la piedra")
+    dimension: str = Field(..., min_length=1, max_length=NAME_MAX_LENGTH)
+    previous_character_id: str = Field(..., description="ID del personaje que fue robado")
 
 
 class MoveCharacterRequest(BaseModel):

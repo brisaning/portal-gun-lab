@@ -1,5 +1,5 @@
 import { api, getErrorMessage } from './api'
-import type { Character } from '../types/character'
+import type { Character, DimensionalStone } from '../types/character'
 
 export interface CharacterCreatePayload {
   name: string
@@ -27,6 +27,11 @@ export async function getCharacters(
   const { data } = await api.get<Character[]>('/characters', {
     params: dimension ? { dimension } : undefined,
   })
+  return data
+}
+
+export async function getStones(): Promise<DimensionalStone[]> {
+  const { data } = await api.get<DimensionalStone[]>('/stones')
   return data
 }
 

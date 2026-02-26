@@ -9,7 +9,8 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { NotificationToast } from '../components/NotificationToast'
-import { getCharacters, moveCharacter } from '../services/characterService'
+import { RICK_PRIME_DIMENSION } from '../constants/dimensions'
+import { getCharacters, getStones, moveCharacter } from '../services/characterService'
 import { getRandomInsult } from '../services/insultService'
 import type { Character, DimensionalStone } from '../types/character'
 
@@ -24,7 +25,7 @@ export function getDimensionFromDroppableId(droppableId: string): string | null 
   return droppableId.slice(DROPPABLE_PREFIX.length)
 }
 
-const DEFAULT_DIMENSIONS = ['C-137', 'C-131']
+const DEFAULT_DIMENSIONS = ['C-137', 'C-131', RICK_PRIME_DIMENSION]
 
 export function useDimensions() {
   const [characters, setCharacters] = useState<Character[]>([])
@@ -63,8 +64,12 @@ export function useDimensions() {
     setLoading(true)
     setError(null)
     try {
-      const data = await getCharacters()
-      setCharacters(data)
+      const [charactersData, stonesData] = await Promise.all([
+        getCharacters(),
+        getStones(),
+      ])
+      setCharacters(charactersData)
+      setStones(stonesData)
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Error al cargar personajes'
       setError(message)
@@ -138,12 +143,11 @@ export function useDimensions() {
   )
 
   const handleRickPrimeSteal = useCallback(
-    (stolenId: string, dimension: string) => {
-      setCharacters((prev) => prev.filter((c) => c.id !== stolenId))
-      setStones((prev) => [
-        ...prev,
-        { id: stolenId, dimension, previous_character_id: stolenId },
-      ])
+    (updatedCharacter: Character, newStone: DimensionalStone) => {
+      setCharacters((prev) =>
+        prev.map((c) => (c.id === updatedCharacter.id ? updatedCharacter : c))
+      )
+      setStones((prev) => [...prev, newStone])
     },
     []
   )
@@ -192,8 +196,21 @@ export function useDimensions() {
       }
 
       const character = characters.find((c) => c.id === activeId)
+      const isStone = stones.some((s) => s.id === activeId)
+
+      if (isStone) {
+        return
+      }
       if (!character) {
         console.log('⚠️ [useDimensions] Salida temprana: personaje no encontrado', activeId)
+        return
+      }
+      if (character.current_dimension === RICK_PRIME_DIMENSION) {
+        toast.error('Los trofeos de Rick Prime no se pueden mover')
+        return
+      }
+      if (targetDimension === RICK_PRIME_DIMENSION) {
+        toast.error('¡Solo Rick Prime puede poner personajes aquí! Usa el botón Rick Prime Attack.')
         return
       }
       if (character.current_dimension === targetDimension) {
@@ -212,7 +229,7 @@ export function useDimensions() {
         toast.error('¡Wubba Lubba Dub Dub! Algo salió mal.')
       })
     },
-    [characters, moveCharacterToDimension]
+    [characters, stones, moveCharacterToDimension]
   )
 
   return {

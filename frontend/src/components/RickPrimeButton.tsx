@@ -1,5 +1,6 @@
 import { memo, useState } from 'react'
 import toast from 'react-hot-toast'
+import type { Character, DimensionalStone } from '../types/character'
 import { NotificationToast } from './NotificationToast'
 import { stealCharacter } from '../services/rickPrimeService'
 import { getRandomInsult } from '../services/insultService'
@@ -12,7 +13,7 @@ const RICK_PRIME_INSULTS = [
 ]
 
 interface RickPrimeButtonProps {
-  onStealSuccess: (stolenId: string, dimension: string) => void
+  onStealSuccess: (updatedCharacter: Character, newStone: DimensionalStone) => void
   disabled?: boolean
 }
 
@@ -29,15 +30,12 @@ function RickPrimeButtonComponent({
     setShowAnimation(true)
 
     try {
-      const character = await stealCharacter()
-      if (!character) {
-        setShowAnimation(false)
-        setRobbing(false)
-        toast.error('No hay personajes para que Rick Prime robe')
-        return
-      }
-
-      onStealSuccess(character.id, character.current_dimension)
+      const { character, stone } = await stealCharacter()
+      onStealSuccess(character, stone)
+      toast.success(`⚡ Rick Prime stole ${character.name}! Ha! Pathetic!`, {
+        duration: 5000,
+        style: { background: '#1a0033', color: '#ff00ff', border: '1px solid #b300ff' },
+      })
 
       setTimeout(() => {
         setShowAnimation(false)
@@ -74,6 +72,7 @@ function RickPrimeButtonComponent({
     } catch {
       setShowAnimation(false)
       setRobbing(false)
+      toast.error('No hay personajes para que Rick Prime robe')
     }
   }
 

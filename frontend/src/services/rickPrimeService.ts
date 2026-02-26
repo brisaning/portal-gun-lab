@@ -1,9 +1,14 @@
 import { api, getErrorMessage } from './api'
-import type { Character } from '../types/character'
+import type { Character, DimensionalStone } from '../types/character'
 
-export async function stealCharacter(): Promise<Character> {
+export interface StealCharacterResponse {
+  character: Character
+  stone: DimensionalStone
+}
+
+export async function stealCharacter(): Promise<StealCharacterResponse> {
   try {
-    const { data } = await api.post<Character>('/rick-prime/steal')
+    const { data } = await api.post<StealCharacterResponse>('/rick-prime/steal')
     return data
   } catch (error) {
     throw new Error(getErrorMessage(error))

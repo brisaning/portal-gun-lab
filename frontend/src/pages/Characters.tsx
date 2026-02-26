@@ -1,5 +1,6 @@
 import { DndContext, DragOverlay, pointerWithin, type DragEndEvent } from '@dnd-kit/core'
 import { useRef, useEffect } from 'react'
+import { RICK_PRIME_DIMENSION } from '../constants/dimensions'
 import { CharacterCardOverlay } from '../components/CharacterCard'
 import { DimensionColumn } from '../components/DimensionColumn'
 import { RickPrimeButton } from '../components/RickPrimeButton'
@@ -7,6 +8,7 @@ import { useDimensions } from '../hooks/useDimensions'
 
 export function Characters() {
   const {
+    characters,
     dimensions,
     charactersByDimension,
     stonesByDimension,
@@ -82,7 +84,7 @@ export function Characters() {
 
         <RickPrimeButton
           onStealSuccess={handleRickPrimeSteal}
-          disabled={Object.values(charactersByDimension).flat().length === 0}
+          disabled={characters.filter((c) => c.current_dimension !== RICK_PRIME_DIMENSION).length === 0}
         />
 
         <DragOverlay dropAnimation={null}>

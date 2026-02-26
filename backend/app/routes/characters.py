@@ -17,7 +17,7 @@ from app.schemas import (
     CharacterUpdate,
     MoveCharacterRequest,
 )
-from app.services.rick_prime_service import DOC_TYPE_DIMENSIONAL_STONE
+from app.services.rick_prime_service import DOC_TYPE_DIMENSIONAL_STONE, RICK_PRIME_DIMENSION
 from app.utils import doc_to_character_response
 
 logger = logging.getLogger(__name__)
@@ -131,18 +131,29 @@ async def delete_character(id: str) -> None:
 
 @router.post("/characters/{id}/move", response_model=CharacterResponse)
 async def move_character(id: str, body: MoveCharacterRequest) -> CharacterResponse:
-    """Mueve un personaje a otra dimensión."""
+    """Mueve un personaje a otra dimensión. No permite mover desde/hacia la bóveda de Rick Prime."""
+    if body.target_dimension == RICK_PRIME_DIMENSION:
+        raise HTTPException(
+            status_code=400,
+            detail="Solo Rick Prime puede poner personajes en su bóveda. Usa el botón Rick Prime Attack.",
+        )
     oid = _validate_object_id(id)
     try:
         coll = get_characters_collection()
+        current = await coll.find_one({"_id": oid, **_character_filter()})
+        if current is None:
+            logger.warning("Personaje no encontrado para mover: id=%s", id)
+            raise HTTPException(status_code=404, detail="Personaje no encontrado")
+        if current.get("current_dimension") == RICK_PRIME_DIMENSION:
+            raise HTTPException(
+                status_code=400,
+                detail="Los trofeos de Rick Prime no se pueden mover",
+            )
         result = await coll.find_one_and_update(
             {"_id": oid, **_character_filter()},
             {"$set": {"current_dimension": body.target_dimension}},
             return_document=ReturnDocument.AFTER,
         )
-        if result is None:
-            logger.warning("Personaje no encontrado para mover: id=%s", id)
-            raise HTTPException(status_code=404, detail="Personaje no encontrado")
         logger.info(
             "Personaje movido: id=%s -> dimension=%s",
             id,
