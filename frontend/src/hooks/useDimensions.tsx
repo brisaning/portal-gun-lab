@@ -6,13 +6,12 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { NotificationToast } from '../components/NotificationToast'
 import { getCharacters, moveCharacter } from '../services/characterService'
 import { getRandomInsult } from '../services/insultService'
 import type { Character, DimensionalStone } from '../types/character'
-import { useDebouncedCallback } from './useDebouncedCallback'
 
 const DROPPABLE_PREFIX = 'dim-'
 
@@ -33,6 +32,7 @@ export function useDimensions() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
+  const lastOverIdRef = useRef<string | null>(null)
 
   const dimensions = useMemo(() => {
     const fromChars = characters.map((c) => c.current_dimension).filter(Boolean)
@@ -78,50 +78,37 @@ export function useDimensions() {
     loadCharacters()
   }, [loadCharacters])
 
-  const performMove = useCallback(
+  const moveCharacterToDimension = useCallback(
     async (characterId: string, targetDimension: string) => {
+      const character = characters.find((c) => c.id === characterId)
+      if (!character) return
+      if (character.current_dimension === targetDimension) return
       try {
         const updated = await moveCharacter(characterId, targetDimension)
         setCharacters((prev) =>
           prev.map((c) => (c.id === updated.id ? updated : c))
         )
         toast.success(`${updated.name} movido a ${targetDimension}`)
-        getRandomInsult()
-          .then(({ insult }) => {
-            toast.custom(
-              (t) => (
-                <NotificationToast
-                  message={insult}
-                  visible={t.visible}
-                  toastId={t.id}
-                />
-              ),
-              { duration: 5000 }
-            )
-          })
-          .catch(() => {})
+        try {
+          const { insult } = await getRandomInsult()
+          toast.custom(
+            (t) => (
+              <NotificationToast
+                message={insult}
+                visible={t.visible}
+                toastId={t.id}
+              />
+            ),
+            { duration: 5000 }
+          )
+        } catch {
+          // Insulto opcional; no bloquear si falla
+        }
       } catch {
         // Error ya mostrado por el handler global de API
       }
     },
-    []
-  )
-
-  const moveCharacterToDimensionDebounced = useDebouncedCallback(
-    (characterId: string, targetDimension: string) => {
-      performMove(characterId, targetDimension)
-    },
-    300
-  )
-
-  const moveCharacterToDimension = useCallback(
-    (characterId: string, targetDimension: string) => {
-      const character = characters.find((c) => c.id === characterId)
-      if (!character) return
-      if (character.current_dimension === targetDimension) return
-      moveCharacterToDimensionDebounced(characterId, targetDimension)
-    },
-    [characters, moveCharacterToDimensionDebounced]
+    [characters]
   )
 
   const handleRickPrimeSteal = useCallback(
@@ -142,22 +129,26 @@ export function useDimensions() {
   )
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
+    lastOverIdRef.current = null
     setActiveId(event.active.id as string)
   }, [])
 
-  const handleDragOver = useCallback((_event: DragOverEvent) => {
-    // Optional: visual feedback during drag
+  const handleDragOver = useCallback((event: DragOverEvent) => {
+    if (event.over?.id != null) {
+      lastOverIdRef.current = String(event.over.id)
+    }
   }, [])
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
-      setActiveId(null)
       const { active, over } = event
-      if (!over?.id) return
+      const overId = over?.id != null ? String(over.id) : lastOverIdRef.current
+      lastOverIdRef.current = null
+      setActiveId(null)
+
+      if (!overId) return
 
       const activeId = active.id as string
-      const overId = String(over.id)
-
       let targetDimension: string | null = getDimensionFromDroppableId(overId)
       if (targetDimension === null) {
         const overCharacter = characters.find((c) => c.id === overId)
