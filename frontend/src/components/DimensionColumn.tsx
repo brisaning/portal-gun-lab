@@ -32,9 +32,10 @@ export function DimensionColumn({
     <div
       ref={setNodeRef}
       className={`
+        dimension-column-portal
         flex min-h-[320px] w-72 flex-shrink-0 flex-col rounded-2xl border-2
-        bg-dark-bg/50 p-4 backdrop-blur-sm transition-all duration-200
-        hover:border-neon-bright/50 hover:shadow-neon-sm
+        bg-dark-bg/50 p-4 backdrop-blur-sm
+        hover:border-neon-bright/60 hover:shadow-neon
         ${active ? 'border-neon-lime shadow-neon bg-dark-bg/70' : 'border-neon/30'}
       `}
     >

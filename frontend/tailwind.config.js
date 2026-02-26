@@ -43,6 +43,12 @@ export default {
       backgroundSize: {
         "gradient": "200% 200%",
       },
+      transitionDuration: {
+        smooth: "300ms",
+      },
+      transitionTimingFunction: {
+        smooth: "cubic-bezier(0.4, 0, 0.2, 1)",
+      },
     },
   },
   plugins: [],

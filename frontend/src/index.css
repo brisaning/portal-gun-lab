@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Portal Gun Character Lab - Tema global psicodélico */
+/* ============================================
+   Portal Gun Character Lab - Modo oscuro + neón
+   ============================================ */
 
 :root {
   --neon: #00ff00;
@@ -10,29 +12,34 @@
   --neon-lime: #7cfc00;
   --dark-bg: #0a0f0a;
   --dark-deeper: #051005;
+  --dark-card: rgba(10, 15, 10, 0.9);
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @layer base {
   body {
     @apply font-sans text-neon-bright bg-dark-deeper min-h-screen overflow-x-hidden antialiased;
+    color-scheme: dark;
   }
 }
 
-/* Fondo con gradientes animados */
+/* ---------- 1. Fondos: gradientes móviles ---------- */
 .gradient-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(
-    -45deg,
-    var(--dark-deeper) 0%,
-    var(--dark-bg) 25%,
-    #0d1a0d 50%,
-    var(--dark-bg) 75%,
-    var(--dark-deeper) 100%
-  );
-  background-size: 200% 200%;
-  animation: gradient-shift 12s ease infinite;
+  background: 
+    linear-gradient(
+      125deg,
+      var(--dark-deeper) 0%,
+      var(--dark-bg) 20%,
+      #0d1a0d 40%,
+      #071507 60%,
+      var(--dark-bg) 80%,
+      var(--dark-deeper) 100%
+    );
+  background-size: 400% 400%;
+  animation: gradient-flow 15s ease infinite;
 }
 
 .gradient-bg::before {
@@ -40,11 +47,12 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    ellipse 80% 50% at 50% 0%,
-    rgba(0, 255, 0, 0.08) 0%,
-    transparent 50%
+    ellipse 100% 60% at 50% 0%,
+    rgba(57, 255, 20, 0.12) 0%,
+    transparent 45%
   );
   pointer-events: none;
+  animation: portal-glow-pulse 4s ease-in-out infinite;
 }
 
 .gradient-bg::after {
@@ -52,21 +60,84 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    ellipse 60% 40% at 80% 100%,
-    rgba(57, 255, 20, 0.05) 0%,
+    ellipse 60% 80% at 80% 100%,
+    rgba(0, 255, 0, 0.06) 0%,
     transparent 50%
   );
   pointer-events: none;
 }
 
-@keyframes gradient-shift {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+@keyframes gradient-flow {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 50% 0%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 100%; }
+}
+
+@keyframes portal-glow-pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* ---------- 2. Efecto "portal" en columnas de dimensión ---------- */
+.dimension-column-portal {
+  position: relative;
+  transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth), transform var(--transition-smooth);
+}
+
+.dimension-column-portal::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--neon-bright),
+    var(--neon-lime),
+    var(--neon-bright),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: portal-ring 4s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.dimension-column-portal:hover::before {
+  opacity: 0.9;
+  animation-duration: 2s;
+}
+
+@keyframes portal-ring {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ---------- 3. Hover: brillo neón en tarjetas ---------- */
+.card-neon-hover {
+  transition: 
+    border-color var(--transition-smooth),
+    box-shadow var(--transition-smooth),
+    transform var(--transition-smooth);
+}
+
+.card-neon-hover:hover {
+  border-color: rgba(57, 255, 20, 0.7);
+  box-shadow: 
+    0 0 15px rgba(57, 255, 20, 0.4),
+    0 0 30px rgba(57, 255, 20, 0.2),
+    inset 0 0 20px rgba(57, 255, 20, 0.03);
+  transform: translateY(-1px);
+}
+
+.card-neon-hover:active {
+  transform: translateY(0);
 }
 
 /* Brillo de texto neón */
@@ -79,8 +150,7 @@
 }
 
 @keyframes pulse-glow {
-  0%,
-  100% {
+  0%, 100% {
     text-shadow: 0 0 20px #39ff14, 0 0 40px #39ff14;
   }
   50% {
@@ -88,10 +158,36 @@
   }
 }
 
-/* NotificationToast: estilo psicodélico y animaciones */
+/* ---------- 4. Toast: efecto glitch en insultos ---------- */
 .notification-toast {
   border-color: rgba(57, 255, 20, 0.6);
   box-shadow: 0 0 20px rgba(57, 255, 20, 0.3), inset 0 0 20px rgba(57, 255, 20, 0.05);
+}
+
+.glitch-text {
+  position: relative;
+  animation: glitch-subtle 2.5s ease-in-out 3;
+}
+
+.glitch-text:hover {
+  animation: glitch-active 0.35s ease-in-out 1;
+}
+
+@keyframes glitch-subtle {
+  0%, 90%, 100% { transform: translate(0); text-shadow: 0 0 20px #39ff14; }
+  92% { transform: translate(-1px, 1px); text-shadow: 1px 0 #ff00ff, -1px 0 #39ff14; }
+  94% { transform: translate(1px, -1px); text-shadow: -1px 0 #39ff14, 1px 0 #00ffff; }
+  96% { transform: translate(-1px, -1px); text-shadow: 1px 1px #ff00ff, -1px -1px #39ff14; }
+  98% { transform: translate(1px, 1px); text-shadow: -1px 1px #39ff14, 1px -1px #00ffff; }
+}
+
+@keyframes glitch-active {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); filter: hue-rotate(0deg); }
+  40% { transform: translate(2px, -2px); filter: hue-rotate(5deg); }
+  60% { transform: translate(-2px, -2px); filter: hue-rotate(-5deg); }
+  80% { transform: translate(2px, 2px); filter: hue-rotate(0deg); }
+  100% { transform: translate(0); }
 }
 
 .notification-toast-enter {
@@ -124,9 +220,42 @@
   }
 }
 
+/* ---------- 5. Animación "portal" al mover personajes ---------- */
+.portal-move {
+  animation: portal-warp 0.5s ease-out;
+}
+
+@keyframes portal-warp {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 20px #39ff14, 0 0 40px rgba(57, 255, 20, 0.3);
+  }
+  30% {
+    opacity: 0.9;
+    transform: scale(1.08);
+    box-shadow: 0 0 40px #39ff14, 0 0 80px rgba(57, 255, 20, 0.5);
+  }
+  70% {
+    opacity: 0.95;
+    transform: scale(1.02);
+    box-shadow: 0 0 30px #39ff14, 0 0 60px rgba(57, 255, 20, 0.4);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 20px #39ff14, 0 0 40px rgba(57, 255, 20, 0.3);
+  }
+}
+
 /* Piedra dimensional: roca con brillos verdes */
 .dimensional-stone-card {
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4), 0 0 12px rgba(57, 255, 20, 0.15);
+  transition: box-shadow var(--transition-smooth);
+}
+
+.dimensional-stone-card:hover {
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4), 0 0 18px rgba(57, 255, 20, 0.25);
 }
 
 .dimensional-stone-rock {

@@ -41,7 +41,7 @@ export function NotificationToast({
       `}
       role="alert"
     >
-      <p className="text-glow">{message}</p>
+      <p className="text-glow glitch-text">{message}</p>
     </div>
   )
 }

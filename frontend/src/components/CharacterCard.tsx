@@ -34,10 +34,9 @@ export function CharacterCard({ character, isDragging = false }: CharacterCardPr
       {...attributes}
       {...listeners}
       className={`
+        card-neon-hover
         group relative flex cursor-grab active:cursor-grabbing
         gap-3 rounded-xl border bg-dark-bg/90 p-3
-        transition-all duration-200
-        hover:border-neon-bright/60 hover:shadow-neon-sm
         ${dragging ? 'z-50 scale-105 opacity-90 shadow-neon' : 'border-neon/30'}
       `}
     >
@@ -89,7 +88,7 @@ export function CharacterCardOverlay({ character }: { character: Character }) {
 
   return (
     <div
-      className="flex gap-3 rounded-xl border-2 border-neon-bright bg-dark-bg p-3 shadow-neon"
+      className="portal-move flex gap-3 rounded-xl border-2 border-neon-bright bg-dark-bg p-3 shadow-neon"
       style={{ width: 280 }}
     >
       {isOriginDimension && (
