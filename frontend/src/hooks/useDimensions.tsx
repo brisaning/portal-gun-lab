@@ -11,7 +11,7 @@ import toast from 'react-hot-toast'
 import { NotificationToast } from '../components/NotificationToast'
 import { getCharacters, moveCharacter } from '../services/characterService'
 import { getRandomInsult } from '../services/insultService'
-import type { Character } from '../types/character'
+import type { Character, DimensionalStone } from '../types/character'
 
 const DROPPABLE_PREFIX = 'dim-'
 
@@ -28,17 +28,18 @@ const DEFAULT_DIMENSIONS = ['C-137']
 
 export function useDimensions() {
   const [characters, setCharacters] = useState<Character[]>([])
+  const [stones, setStones] = useState<DimensionalStone[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
 
   const dimensions = useMemo(() => {
-    const fromChars = Array.from(
-      new Set(characters.map((c) => c.current_dimension).filter(Boolean))
-    ).sort()
-    if (fromChars.length === 0) return DEFAULT_DIMENSIONS
-    return fromChars
-  }, [characters])
+    const fromChars = characters.map((c) => c.current_dimension).filter(Boolean)
+    const fromStones = stones.map((s) => s.dimension)
+    const all = Array.from(new Set([...fromChars, ...fromStones])).sort()
+    if (all.length === 0) return DEFAULT_DIMENSIONS
+    return all
+  }, [characters, stones])
 
   const charactersByDimension = useMemo(() => {
     const map: Record<string, Character[]> = {}
@@ -49,6 +50,14 @@ export function useDimensions() {
     }
     return map
   }, [characters, dimensions])
+
+  const stonesByDimension = useMemo(() => {
+    const map: Record<string, DimensionalStone[]> = {}
+    for (const dim of dimensions) {
+      map[dim] = stones.filter((s) => s.dimension === dim)
+    }
+    return map
+  }, [stones, dimensions])
 
   const loadCharacters = useCallback(async () => {
     setLoading(true)
@@ -100,6 +109,17 @@ export function useDimensions() {
     [characters]
   )
 
+  const handleRickPrimeSteal = useCallback(
+    (stolenId: string, dimension: string) => {
+      setCharacters((prev) => prev.filter((c) => c.id !== stolenId))
+      setStones((prev) => [
+        ...prev,
+        { id: stolenId, dimension, previous_character_id: stolenId },
+      ])
+    },
+    []
+  )
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
@@ -142,13 +162,16 @@ export function useDimensions() {
   return {
     characters,
     setCharacters,
+    stones,
     dimensions,
     charactersByDimension,
+    stonesByDimension,
     loading,
     error,
     activeId,
     loadCharacters,
     moveCharacterToDimension,
+    handleRickPrimeSteal,
     sensors,
     handleDragStart,
     handleDragOver,

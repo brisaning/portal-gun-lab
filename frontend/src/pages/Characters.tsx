@@ -1,12 +1,14 @@
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { CharacterCardOverlay } from '../components/CharacterCard'
 import { DimensionColumn } from '../components/DimensionColumn'
+import { RickPrimeButton } from '../components/RickPrimeButton'
 import { useDimensions } from '../hooks/useDimensions'
 
 export function Characters() {
   const {
     dimensions,
     charactersByDimension,
+    stonesByDimension,
     loading,
     error,
     activeId,
@@ -14,6 +16,7 @@ export function Characters() {
     handleDragStart,
     handleDragOver,
     handleDragEnd,
+    handleRickPrimeSteal,
   } = useDimensions()
 
   const activeCharacter = activeId
@@ -60,9 +63,15 @@ export function Characters() {
               key={dim}
               dimension={dim}
               characters={charactersByDimension[dim] ?? []}
+              stones={stonesByDimension[dim] ?? []}
             />
           ))}
         </div>
+
+        <RickPrimeButton
+          onStealSuccess={handleRickPrimeSteal}
+          disabled={Object.values(charactersByDimension).flat().length === 0}
+        />
 
         <DragOverlay dropAnimation={null}>
           {activeCharacter ? (

@@ -8,3 +8,9 @@ export interface Character {
   image_url: string | null
   captured_at: string
 }
+
+export interface DimensionalStone {
+  id: string
+  dimension: string
+  previous_character_id: string
+}

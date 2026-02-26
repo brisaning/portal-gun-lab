@@ -3,19 +3,22 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import type { Character } from '../types/character'
+import type { Character, DimensionalStone } from '../types/character'
 import { CharacterCard } from './CharacterCard'
+import { DimensionalStoneCard } from './DimensionalStoneCard'
 import { getDroppableId } from '../hooks/useDimensions'
 
 interface DimensionColumnProps {
   dimension: string
   characters: Character[]
+  stones?: DimensionalStone[]
   isOver?: boolean
 }
 
 export function DimensionColumn({
   dimension,
   characters,
+  stones = [],
   isOver = false,
 }: DimensionColumnProps) {
   const { setNodeRef, isOver: droppableIsOver } = useDroppable({
@@ -23,6 +26,7 @@ export function DimensionColumn({
   })
 
   const active = droppableIsOver || isOver
+  const totalItems = characters.length + stones.length
 
   return (
     <div
@@ -39,6 +43,7 @@ export function DimensionColumn({
       </h3>
       <p className="mb-3 text-xs text-neon/70">
         {characters.length} personaje{characters.length !== 1 ? 's' : ''}
+        {stones.length > 0 && ` · ${stones.length} piedra${stones.length !== 1 ? 's' : ''}`}
       </p>
 
       <SortableContext
@@ -51,10 +56,15 @@ export function DimensionColumn({
               <CharacterCard character={char} />
             </li>
           ))}
+          {stones.map((stone) => (
+            <li key={stone.id}>
+              <DimensionalStoneCard stone={stone} />
+            </li>
+          ))}
         </ul>
       </SortableContext>
 
-      {characters.length === 0 && (
+      {totalItems === 0 && (
         <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-neon/30 py-8 text-center text-sm text-neon/50">
           Arrastra personajes aquí
         </div>
