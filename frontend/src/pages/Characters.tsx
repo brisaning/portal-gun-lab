@@ -1,4 +1,5 @@
-import { DndContext, DragOverlay } from '@dnd-kit/core'
+import { DndContext, DragOverlay, pointerWithin, type DragEndEvent } from '@dnd-kit/core'
+import { useRef, useEffect } from 'react'
 import { CharacterCardOverlay } from '../components/CharacterCard'
 import { DimensionColumn } from '../components/DimensionColumn'
 import { RickPrimeButton } from '../components/RickPrimeButton'
@@ -18,6 +19,16 @@ export function Characters() {
     handleDragEnd,
     handleRickPrimeSteal,
   } = useDimensions()
+
+  const handleDragEndRef = useRef(handleDragEnd)
+  useEffect(() => {
+    handleDragEndRef.current = handleDragEnd
+  }, [handleDragEnd])
+
+  const onDragEnd = (event: DragEndEvent) => {
+    console.log('🔥 [DndContext] onDragEnd disparado', event)
+    handleDragEndRef.current(event)
+  }
 
   const activeCharacter = activeId
     ? Object.values(charactersByDimension)
@@ -53,9 +64,10 @@ export function Characters() {
 
       <DndContext
         sensors={sensors}
+        collisionDetection={pointerWithin}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
+        onDragEnd={onDragEnd}
       >
         <div className="mt-8 flex flex-wrap gap-6 overflow-x-auto pb-4">
           {dimensions.map((dim) => (
