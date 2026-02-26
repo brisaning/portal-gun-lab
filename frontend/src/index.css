@@ -1,0 +1,73 @@
+/* Portal Gun Character Lab - Tema psicodélico verdes neón */
+
+:root {
+  --neon-green: #39ff14;
+  --neon-green-dim: #2dd10f;
+  --neon-cyan: #00fff7;
+  --dark-bg: #0a0f0a;
+  --darker-bg: #051005;
+  --glow-green: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
+  --font-display: 'Orbitron', 'Courier New', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-display);
+  background: var(--darker-bg);
+  color: var(--neon-green);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Fondo con gradiente y efecto de escaneo psicodélico */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(57, 255, 20, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-weight: 700;
+  text-shadow: var(--glow-green);
+  letter-spacing: 0.15em;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.subtitle {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--neon-cyan);
+  opacity: 0.9;
+  letter-spacing: 0.2em;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { text-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green); }
+  50% { text-shadow: 0 0 30px var(--neon-green), 0 0 60px var(--neon-green-dim); }
+}
