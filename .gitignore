@@ -1,0 +1,52 @@
+# Dependencias externas
+node_modules/
+frontend/node_modules/
+
+# Entornos virtuales Python
+.venv/
+venv/
+env/
+backend/.venv/
+backend/venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+*.egg
+
+# Build / salida
+frontend/dist/
+build/
+*.local
+
+# Variables de entorno y secretos
+.env
+.env.local
+.env.*.local
+
+# Cobertura y tests
+coverage/
+.nyc_output/
+htmlcov/
+.coverage
+*.cover
+.pytest_cache/
+.mypy_cache/
+
+# IDE y sistema
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
