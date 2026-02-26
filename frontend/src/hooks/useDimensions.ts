@@ -8,7 +8,7 @@ import {
 } from '@dnd-kit/core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { getCharacters, moveCharacter } from '../api/client'
+import { getCharacters, moveCharacter } from '../services/characterService'
 import type { Character } from '../types/character'
 
 const DROPPABLE_PREFIX = 'dim-'
@@ -57,7 +57,6 @@ export function useDimensions() {
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Error al cargar personajes'
       setError(message)
-      toast.error(message)
     } finally {
       setLoading(false)
     }
@@ -81,9 +80,7 @@ export function useDimensions() {
           `${updated.name} movido a ${targetDimension}`
         )
       } catch (e) {
-        const message =
-          e instanceof Error ? e.message : 'Error al mover personaje'
-        toast.error(message)
+        // Error ya mostrado por el handler global de API
       }
     },
     [characters]
