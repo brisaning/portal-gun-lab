@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import close_mongo_connection, connect_to_mongo, ensure_indexes
 from app.routes import characters as characters_routes
+from app.routes import rick_routes
 
 
 @asynccontextmanager
@@ -40,6 +41,7 @@ app.add_middleware(
 )
 
 app.include_router(characters_routes.router)
+app.include_router(rick_routes.router)
 
 
 @app.get("/")
