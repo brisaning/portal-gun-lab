@@ -107,7 +107,7 @@ async def ensure_indexes() -> None:
     try:
         coll = get_characters_collection()
         await coll.create_index("name", unique=False)
-        await coll.create_index("created_at")
+        await coll.create_index("captured_at")
         logger.info("Índices de 'characters' verificados/creados")
     except Exception as e:
         logger.exception("Error creando índices en 'characters': %s", e)
