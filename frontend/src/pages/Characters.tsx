@@ -75,7 +75,7 @@ export function Characters() {
           title="Crear nuevo ser dimensional"
           className="rounded-xl border-2 border-neon-bright bg-neon-bright/10 px-4 py-2 font-display text-sm font-bold text-neon-bright shadow-[0_0_15px_rgba(57,255,20,0.4)] transition hover:bg-neon-bright/20 hover:shadow-[0_0_20px_rgba(57,255,20,0.5)]"
         >
-          🔬 Generar Personaje
+          🔬 Crear Personaje
         </button>
       </div>
 
@@ -109,7 +109,7 @@ export function Characters() {
           title="Crear nuevo ser dimensional"
           className="fixed bottom-8 left-8 z-50 rounded-full border-2 border-neon-bright/80 bg-dark-bg px-4 py-3 font-display text-sm font-bold text-neon-bright shadow-[0_0_15px_rgba(57,255,20,0.4)] transition hover:border-neon-lime hover:shadow-[0_0_20px_rgba(57,255,20,0.5)]"
         >
-          + Crear Personaje
+          🔬 Crear Personaje
         </button>
 
         <RickPrimeButton
